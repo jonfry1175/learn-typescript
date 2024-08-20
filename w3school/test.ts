@@ -4,3 +4,5 @@ console.log({myName})
 // implicit type = tipedata ditentukan oleh value
 let firstName = "Dylan";
 console.log({firstName})
+
+
