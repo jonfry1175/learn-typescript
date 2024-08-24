@@ -4,27 +4,45 @@ import { getTodos, addTodo, updateTodo, deleteTodo, Todo } from '../services/api
 
 const todos = ref<Todo[]>([]);
 const newTodo = ref('');
+const errorMessage = ref<string | null>(null);
 
 const fetchTodos = async () => {
-  todos.value = await getTodos();
+  try {
+    todos.value = await getTodos();
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to fetch todos';
+  }
 };
 
+// method trim untuk menghilangkan spasi di depan dan belakang
 const createTodo = async () => {
-  if (newTodo.value.trim()) {
-    const todo = await addTodo({ title: newTodo.value.trim(), completed: false });
-    todos.value.push(todo);
-    newTodo.value = '';
+  try {
+    if (newTodo.value.trim()) {
+      const todo = await addTodo({ title: newTodo.value.trim(), completed: false });
+      todos.value.push(todo);
+      newTodo.value = '';
+    }
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to add todo';
   }
 };
 
 const toggleCompletion = async (todo: Todo) => {
-  todo.completed = !todo.completed;
-  await updateTodo(todo);
+  try {
+    todo.completed = !todo.completed;
+    await updateTodo(todo);
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to update todo';
+  }
 };
 
 const removeTodo = async (id: number) => {
-  await deleteTodo(id);
-  todos.value = todos.value.filter(todo => todo.id !== id);
+  try {
+    await deleteTodo(id);
+    todos.value = todos.value.filter(todo => todo.id !== id);
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Failed to delete todo';
+  }
 };
 
 onMounted(fetchTodos);
@@ -33,6 +51,11 @@ onMounted(fetchTodos);
 <template>
   <div class="container mt-5">
     <h1>To-Do List</h1>
+    
+    <div v-if="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+
     <form @submit.prevent="createTodo" class="mb-3">
       <div class="input-group">
         <input v-model="newTodo" type="text" class="form-control" placeholder="Add new to-do" />
@@ -44,9 +67,7 @@ onMounted(fetchTodos);
       <li v-for="todo in todos" :key="todo.id" class="list-group-item d-flex justify-content-between align-items-center">
         <div>
           <input type="checkbox" v-model="todo.completed" @change="toggleCompletion(todo)" />
-          <span
-           :class="{ 'text-decoration-line-through': todo.completed }" class="ms-2"
-           >{{ todo.title }}</span>
+          <span :class="{ 'text-decoration-line-through': todo.completed }" class="ms-2">{{ todo.title }}</span>
         </div>
         <button @click="removeTodo(todo.id)" class="btn btn-danger btn-sm">Delete</button>
       </li>

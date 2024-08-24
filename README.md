@@ -1,11 +1,16 @@
 # learn-typescript
-DEA: https://youtu.be/ugOonjYVxYM?si=y8oggSH56qHO5p2m
 
-`cd dea`
+```bash
+ cd dea
+ ```
 
-`tsc init`
+```bash
+tsc init
+```
 
-`npm start`
+```bash
+npm start
+```
 
 atau bisa menggunakan
 
